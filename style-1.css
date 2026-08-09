@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeCampus — Report an Incident</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101A2B;
+    --ink-2:#1C2A3F;
+    --paper:#F7F5F0;
+    --paper-dim:#EFEBE2;
+    --slate:#28394F;
+    --slate-soft:#5B6B80;
+    --line:#D8D3C6;
+    --amber:#E0A23D;
+    --rust:#C24C3D;
+    --moss:#4E8F63;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--slate);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Source Serif 4',serif;color:var(--ink);margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:inherit;text-decoration:none;}
+
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 48px;border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:32px;height:32px;background:var(--ink);border-radius:3px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--amber);font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;
+  }
+  .brand-name{font-family:'Source Serif 4',serif;font-weight:700;font-size:18px;color:var(--ink);}
+  .nav-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate-soft);
+    letter-spacing:0.08em;text-transform:uppercase;border-left:1px solid var(--line);
+    padding-left:12px;margin-left:2px;
+  }
+  .nav-right{display:flex;align-items:center;gap:18px;font-size:13px;}
+  .user-chip{
+    display:flex;align-items:center;gap:8px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate-soft);
+  }
+  .avatar{
+    width:26px;height:26px;border-radius:50%;background:var(--paper-dim);
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;color:var(--slate);
+  }
+  .logout-link{color:var(--slate-soft);font-weight:500;}
+
+  .page{
+    max-width:1180px;margin:0 auto;padding:44px 48px 80px;
+    display:grid;grid-template-columns:1fr 1.15fr;gap:48px;
+    align-items:start;
+  }
+  .page-header{grid-column:1 / -1;margin-bottom:8px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;
+    text-transform:uppercase;color:var(--slate-soft);margin-bottom:8px;
+  }
+  .page-header h1{font-size:32px;margin-bottom:6px;}
+  .page-header p{font-size:14.5px;color:var(--slate-soft);max-width:560px;}
+
+  /* ===== FORM CARD ===== */
+  .card{
+    background:var(--white);border:1px solid var(--line);border-radius:4px;
+    padding:32px;
+  }
+  .card h2{font-size:19px;margin-bottom:4px;}
+  .card-sub{font-size:13px;color:var(--slate-soft);margin-bottom:26px;}
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;font-size:12px;font-weight:600;color:var(--slate);margin-bottom:7px;
+  }
+  .field .hint{font-weight:400;color:var(--slate-soft);font-size:11.5px;margin-left:4px;}
+  .field input, .field select, .field textarea{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:2px;
+    font-size:14px;background:var(--paper);font-family:'Inter',sans-serif;color:var(--slate);
+  }
+  .field textarea{resize:vertical;min-height:100px;}
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:2px solid var(--ink);outline-offset:1px;background:var(--white);
+  }
+  .category-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  }
+  .cat-option{
+    border:1px solid var(--line);border-radius:2px;padding:10px 12px;
+    font-size:13px;cursor:pointer;background:var(--paper);
+    display:flex;align-items:center;gap:8px;
+  }
+  .cat-option input{width:auto;margin:0;}
+  .cat-option.selected{border-color:var(--ink);background:var(--paper-dim);font-weight:600;}
+
+  .upload-zone{
+    border:1.5px dashed var(--line);border-radius:3px;padding:22px;
+    text-align:center;background:var(--paper);cursor:pointer;
+  }
+  .upload-zone:hover{border-color:var(--slate-soft);}
+  .upload-zone .icon{font-size:22px;margin-bottom:6px;}
+  .upload-zone p{font-size:13px;margin:0;color:var(--slate-soft);}
+  .upload-zone .file-name{
+    margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink);
+  }
+  .s3-note{
+    font-size:11px;color:var(--slate-soft);margin-top:6px;font-family:'IBM Plex Mono',monospace;
+  }
+
+  .btn{
+    padding:13px 22px;border-radius:2px;font-size:14px;font-weight:600;
+    border:1.5px solid transparent;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary{background:var(--ink);color:var(--paper);width:100%;justify-content:center;}
+  .btn-primary:hover{background:var(--ink-2);}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .toast{
+    display:none;align-items:center;gap:10px;
+    background:rgba(78,143,99,0.12);border:1px solid var(--moss);color:#2E6B44;
+    padding:12px 14px;border-radius:3px;font-size:13px;margin-bottom:18px;
+  }
+  .toast.show{display:flex;}
+
+  /* ===== MY REPORTS LIST ===== */
+  .list-head{
+    display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;
+  }
+  .list-head h2{font-size:19px;}
+  .filter-tabs{display:flex;gap:6px;}
+  .filter-tab{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:0.04em;padding:6px 10px;border-radius:2px;border:1px solid var(--line);
+    background:var(--white);color:var(--slate-soft);
+  }
+  .filter-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  .ticket{
+    background:var(--white);border:1px solid var(--line);border-radius:3px;
+    position:relative;padding:18px 20px 18px 24px;margin-bottom:14px;
+  }
+  .ticket::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:3px 0 0 3px;
+  }
+  .ticket.open::before{background:var(--rust);}
+  .ticket.progress::before{background:var(--amber);}
+  .ticket.resolved::before{background:var(--moss);}
+  .ticket-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .ticket-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate-soft);}
+  .badge{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;
+    letter-spacing:0.06em;text-transform:uppercase;padding:4px 9px;border-radius:2px;
+  }
+  .badge.open{background:rgba(194,76,61,0.12);color:var(--rust);}
+  .badge.progress{background:rgba(224,162,61,0.15);color:#9C6C1F;}
+  .badge.resolved{background:rgba(78,143,99,0.13);color:var(--moss);}
+  .ticket-title{font-family:'Source Serif 4',serif;font-size:15.5px;font-weight:600;color:var(--ink);margin-bottom:5px;}
+  .ticket-desc{font-size:13px;color:var(--slate-soft);margin-bottom:8px;line-height:1.5;}
+  .ticket-meta{
+    display:flex;gap:14px;font-size:11.5px;color:var(--slate-soft);
+    font-family:'IBM Plex Mono',monospace;flex-wrap:wrap;
+  }
+  .ticket-photo-tag{display:flex;align-items:center;gap:4px;}
+
+  .empty-state{
+    text-align:center;padding:40px 20px;border:1px dashed var(--line);border-radius:4px;
+    color:var(--slate-soft);font-size:13px;
+  }
+
+  @media (max-width:900px){
+    .page{grid-template-columns:1fr;padding:32px 22px 60px;}
+    .nav{padding:16px 22px;}
+    .category-grid{grid-template-columns:1fr;}
+  }
+
+  .ticket{cursor:pointer;}
+
+  /* ===== DETAIL / AUDIT TRAIL MODAL ===== */
+  .detail-backdrop{
+    position:fixed;inset:0;background:rgba(16,26,43,0.6);
+    display:none;align-items:flex-start;justify-content:center;
+    z-index:60;padding:60px 20px;overflow-y:auto;
+  }
+  .detail-backdrop.show{display:flex;}
+  .detail-panel{
+    background:var(--paper);border-radius:5px;width:100%;max-width:600px;
+    border:1px solid var(--line);overflow:hidden;
+  }
+  .detail-head{background:var(--ink);padding:24px 28px;position:relative;}
+  .detail-close{
+    position:absolute;top:18px;right:20px;background:none;border:none;
+    color:#A9B4C4;font-size:18px;cursor:pointer;
+  }
+  .detail-id{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);
+    text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;
+  }
+  .detail-title{color:var(--paper);font-size:20px;margin-bottom:10px;padding-right:30px;font-family:'Source Serif 4',serif;}
+  .detail-body{padding:26px 28px;}
+  .detail-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;
+    padding-bottom:22px;border-bottom:1px solid var(--line);
+  }
+  .detail-field .k{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:0.06em;color:var(--slate-soft);margin-bottom:4px;
+  }
+  .detail-field .v{font-size:13.5px;color:var(--ink);font-weight:500;}
+  .detail-desc-label{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:0.06em;color:var(--slate-soft);margin-bottom:6px;
+  }
+  .detail-desc{font-size:14px;line-height:1.6;color:var(--slate);margin-bottom:22px;}
+  .detail-photo{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    background:var(--white);border:1px solid var(--line);border-radius:3px;
+    font-size:12.5px;color:var(--slate-soft);margin-bottom:22px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .trail-label{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:0.08em;color:var(--ink);margin-bottom:16px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .trail-label::after{content:"";flex:1;height:1px;background:var(--line);}
+  .timeline{position:relative;padding-left:6px;}
+  .timeline-item{position:relative;padding:0 0 20px 26px;border-left:1.5px solid var(--line);}
+  .timeline-item:last-child{border-left:1.5px solid transparent;padding-bottom:0;}
+  .timeline-dot{
+    position:absolute;left:-6.5px;top:1px;width:12px;height:12px;border-radius:50%;
+    background:var(--white);border:2.5px solid var(--ink);
+  }
+  .timeline-item.st-open .timeline-dot{border-color:var(--rust);}
+  .timeline-item.st-progress .timeline-dot{border-color:var(--amber);}
+  .timeline-item.st-resolved .timeline-dot{border-color:var(--moss);}
+  .timeline-event{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+  .timeline-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate-soft);}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">
+    <div class="brand-mark">SC</div>
+    <div class="brand-name">SafeCampus</div>
+    <div class="nav-tag">Reporter View</div>
+  </div>
+  <div class="nav-right">
+    <div class="user-chip">
+      <div class="avatar">JD</div>
+      <span>jane.doe@campus.edu</span>
+    </div>
+    <a class="logout-link" href="index.html">Log Out</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="eyebrow">Incident Reporting</div>
+    <h1>Report a Safety Incident</h1>
+    <p>Fill in what you saw or experienced. Reports go straight to campus security and you can track the status below.</p>
+  </div>
+
+  <!-- FORM -->
+  <div class="card">
+    <h2>New Report</h2>
+    <p class="card-sub">All submissions are logged with a timestamp and your account for the audit trail.</p>
+
+    <div class="toast" id="successToast">✓ Report submitted — Ticket #<span id="newTicketId"></span> created.</div>
+
+    <form id="reportForm" onsubmit="return submitReport(event)">
+      <div class="field">
+        <label>Category</label>
+        <div class="category-grid" id="categoryGrid">
+          <label class="cat-option" data-val="Theft"><input type="radio" name="category" value="Theft" required> Theft</label>
+          <label class="cat-option" data-val="Harassment"><input type="radio" name="category" value="Harassment"> Harassment</label>
+          <label class="cat-option" data-val="Hazard"><input type="radio" name="category" value="Hazard"> Hazard / Lighting</label>
+          <label class="cat-option" data-val="Suspicious Activity"><input type="radio" name="category" value="Suspicious Activity"> Suspicious Activity</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="location">Location <span class="hint">e.g. "North Hall, 2nd floor"</span></label>
+        <input type="text" id="location" placeholder="Where did this happen?" required>
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="Describe what happened, when, and any details that could help security respond." required></textarea>
+      </div>
+
+      <div class="field">
+        <label>Photo Evidence <span class="hint">optional</span></label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="icon">📎</div>
+          <p>Click to attach a photo, or drag one here</p>
+          <div class="file-name" id="fileName"></div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
+        <div class="s3-note">Uploads route to Amazon S3 — never stored on the server itself</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit Report</button>
+    </form>
+  </div>
+
+  <!-- MY REPORTS -->
+  <div>
+    <div class="list-head">
+      <h2>My Reports</h2>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="open">Open</button>
+        <button class="filter-tab" data-filter="progress">In Progress</button>
+        <button class="filter-tab" data-filter="resolved">Resolved</button>
+      </div>
+    </div>
+    <div id="ticketList"></div>
+  </div>
+</div>
+
+<div class="detail-backdrop" id="detailBackdrop">
+  <div class="detail-panel">
+    <div class="detail-head">
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+      <div class="detail-id" id="dId"></div>
+      <div class="detail-title" id="dTitle"></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-grid">
+        <div class="detail-field">
+          <div class="k">Category</div>
+          <div class="v" id="dCategory"></div>
+        </div>
+        <div class="detail-field">
+          <div class="k">Location</div>
+          <div class="v" id="dLocation"></div>
+        </div>
+      </div>
+      <div class="detail-desc-label">Description</div>
+      <div class="detail-desc" id="dDescription"></div>
+      <div class="detail-photo" id="dPhoto" style="display:none;">📎 Photo evidence attached — stored in Amazon S3</div>
+      <div class="trail-label">Status History</div>
+      <div class="timeline" id="dTimeline"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== MOCK DATA (in-memory — will be replaced by API calls to the backend) =====
+  // "history" mirrors the StatusHistory table — every status change gets logged here
+  // so the reporter can see exactly what happened to their report, and when.
+  let reports = [
+    {
+      id: "SC-1042",
+      category: "Hazard",
+      title: "Broken lighting — Lot C stairwell",
+      description: "The stairwell lights on the west side of Lot C have been out for 3 nights, making it hard to see on the way to my car.",
+      location: "Parking Lot C, west stairwell",
+      status: "open",
+      hasPhoto: false,
+      createdAt: "12 min ago",
+      history: [ {status:"open", at:"12 min ago", note:"Report submitted"} ]
+    },
+    {
+      id: "SC-1039",
+      category: "Suspicious Activity",
+      title: "Suspicious activity — Library east entrance",
+      description: "Someone was pulling on locked doors after hours near the east entrance around 11:15pm.",
+      location: "Library, east entrance",
+      status: "progress",
+      hasPhoto: true,
+      createdAt: "40 min ago",
+      history: [ {status:"open", at:"40 min ago", note:"Report submitted"}, {status:"progress", at:"22 min ago", note:"Security is investigating"} ]
+    },
+    {
+      id: "SC-1031",
+      category: "Theft",
+      title: "Theft report — Bike rack, North Hall",
+      description: "My bike lock was cut and the bike was taken from the rack outside North Hall.",
+      location: "North Hall bike rack",
+      status: "resolved",
+      hasPhoto: true,
+      createdAt: "yesterday",
+      history: [ {status:"open", at:"yesterday, 8:02 AM", note:"Report submitted"}, {status:"progress", at:"yesterday, 8:15 AM", note:"Security reviewing camera footage"}, {status:"resolved", at:"yesterday, 10:12 AM", note:"Bike recovered — case closed"} ]
+    }
+  ];
+
+  let activeFilter = 'all';
+  let selectedFile = null;
+
+  // category selection styling
+  document.querySelectorAll('.cat-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  function handleFile(e){
+    const file = e.target.files[0];
+    if(file){
+      selectedFile = file.name;
+      document.getElementById('fileName').textContent = "Attached: " + file.name;
+    }
+  }
+
+  function submitReport(e){
+    e.preventDefault();
+    const category = document.querySelector('input[name="category"]:checked');
+    const location = document.getElementById('location').value;
+    const description = document.getElementById('description').value;
+
+    const newId = "SC-" + (1042 + reports.length + 1);
+    const newReport = {
+      id: newId,
+      category: category ? category.value : "Other",
+      title: (category ? category.value : "Incident") + " — " + location,
+      description: description,
+      location: location,
+      status: "open",
+      hasPhoto: !!selectedFile,
+      createdAt: "just now",
+      history: [ {status:"open", at:"just now", note:"Report submitted"} ]
+    };
+    reports.unshift(newReport);
+    renderTickets();
+
+    document.getElementById('newTicketId').textContent = newId;
+    const toast = document.getElementById('successToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+
+    document.getElementById('reportForm').reset();
+    document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'));
+    document.getElementById('fileName').textContent = '';
+    selectedFile = null;
+
+    return false;
+  }
+
+  function statusLabel(status){
+    if(status === 'open') return 'Open';
+    if(status === 'progress') return 'In Progress';
+    return 'Resolved';
+  }
+
+  function renderTickets(){
+    const list = document.getElementById('ticketList');
+    const filtered = activeFilter === 'all' ? reports : reports.filter(r => r.status === activeFilter);
+
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty-state">No reports in this category yet.</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(r => `
+      <div class="ticket ${r.status}" onclick="openDetail('${r.id}')">
+        <div class="ticket-top">
+          <span class="ticket-id">#${r.id}</span>
+          <span class="badge ${r.status}">${statusLabel(r.status)}</span>
+        </div>
+        <div class="ticket-title">${r.title}</div>
+        <div class="ticket-desc">${r.description}</div>
+        <div class="ticket-meta">
+          <span>${r.category}</span>
+          <span>·</span>
+          <span>${r.createdAt}</span>
+          ${r.hasPhoto ? '<span class="ticket-photo-tag">· 📎 Photo attached</span>' : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ===== DETAIL / STATUS HISTORY MODAL =====
+  function openDetail(id){
+    const r = reports.find(rep => rep.id === id);
+    if(!r) return;
+
+    document.getElementById('dId').textContent = '#' + r.id;
+    document.getElementById('dTitle').textContent = r.title;
+    document.getElementById('dCategory').textContent = r.category;
+    document.getElementById('dLocation').textContent = r.location;
+    document.getElementById('dDescription').textContent = r.description;
+    document.getElementById('dPhoto').style.display = r.hasPhoto ? 'flex' : 'none';
+
+    const timeline = document.getElementById('dTimeline');
+    const events = r.history || [];
+    timeline.innerHTML = events.map(ev => `
+      <div class="timeline-item st-${ev.status}">
+        <div class="timeline-dot"></div>
+        <div class="timeline-event">${statusLabel(ev.status)} — ${ev.note}</div>
+        <div class="timeline-meta">${ev.at}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('detailBackdrop').classList.add('show');
+  }
+
+  function closeDetail(){
+    document.getElementById('detailBackdrop').classList.remove('show');
+  }
+
+  document.getElementById('detailBackdrop').addEventListener('click', function(e){
+    if(e.target === this) closeDetail();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeDetail();
+  });
+
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      renderTickets();
+    });
+  });
+
+  renderTickets();
+</script>
+
+</body>
+</html>
